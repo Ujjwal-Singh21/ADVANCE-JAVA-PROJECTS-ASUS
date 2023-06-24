@@ -1,0 +1,23 @@
+INDEX VERSION 1.132
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1202411333.index
+\spring-jdbc-studentmanagement\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2157181726.index
+\spring-jdbc-studentmanagement\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\601366942.index
+\spring-security\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1307784174.index
+\myfirst-mvc-project\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\622368073.index
+\spring-love-calculator\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\2639416210.index
+\spring-love-calculator\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1852058970.index
+\MavenServletJsp\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\257527540.index
+\myfirst-mvc-project\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\3993649401.index
+\spring-love-calculator\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\1914162269.index
+\FileUpload\src\main\java
+D:\PROJECTS\ADVANCE-JAVA-PROJECTS\.metadata\.plugins\org.eclipse.jst.jsp.core\jspsearch\223257648.index
+\JspServletProject\src

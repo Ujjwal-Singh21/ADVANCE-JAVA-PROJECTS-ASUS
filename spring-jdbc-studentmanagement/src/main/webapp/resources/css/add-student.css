@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+body {
+	background-image: url("/spring-jdbc-studentmanagement/UrltoReachImagesFolder/background.png");
+	background-repeat: no-repeat;
+}
+
+.heading {
+	color: blue;
+	font-family: cursive;
+}

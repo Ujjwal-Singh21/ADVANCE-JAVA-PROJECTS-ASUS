@@ -1,0 +1,40 @@
+@charset "UTF-8";
+
+body {
+	background-image: url("/spring-jdbc-studentmanagement/UrltoReachImagesFolder/background2.png");
+	background-repeat: none;
+}
+
+a {
+	color: red;
+	background-color: white;
+	font-family: cursive;
+}
+
+h1 {
+	color: red;
+}
+
+h2 {
+	color: blue;
+}
+
+.myFonts {
+	font-size: 15px;
+	font-family: cursive;
+}
+
+.add-btn {
+	color: white;
+	background-color: orange;
+	border: 2px solid green;
+	font-size: 24px;
+	font-family: monospace;
+	padding: 10px 10px 10px 10px;
+	transition-duration: 0.5s;
+}
+
+.add-btn:hover {
+	color: white;
+	background-color: blue;
+}

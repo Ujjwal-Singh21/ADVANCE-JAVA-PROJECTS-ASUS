@@ -1,0 +1,1191 @@
+To create a web project for servlet => Right click, Project, Web, Dynamic Web Project.
+
+
+Initial Control Flow:
+=====================
+
+- User/Client sends request to Server (Tomcat, GlassFish, JBoss)
+
+- Server is also called as Servlet Container or Web container, since it has many servlets.
+
+- Servlets are nothing but simple Java Classes that extends HttpServlet and gets access of Servlet API.
+
+- Then we have Deployment Descriptor file called as web.xml
+
+- It has mapping of which servlet to call for which url request.
+
+- So the appropriate Servlet class will process User's request and send back response object.
+
+
+Inside Servlet Class:
+=====================
+
+- Extedns HttpServlet class.
+
+- Overrides service() lifecycle method.
+
+  eg: public void service(HttpServletRequest request, HttpServletResponse response) { }
+
+- Both paramaters are interfaces whose objects are created by Tomcat internally.
+
+- User sends data during request in parameters so we can access it using getParameter() by calling it on request object, it returns  
+  String hence we parse it to integer.
+
+- response object sends an html file to user, to write the final result on that html file we get hold of writer object from response.
+
+
+
+eg: 
+---
+
+public void service(HttpServletRequest request, HttpServletResponse response) { 
+
+	int i = Integer.parseInt(request.getParameter("num1"));
+     int j = Integer.parseInt(request.getParameter("num2"));
+
+	int k = i + j;
+	PrintWriter out = response.getWriter();
+	out.println("The result is: " + k);
+}
+
+
+
+
+Web.xml (Deployment Descriptor file):
+=====================================
+
+- It has mapping for which servlet to call for which user request.
+
+- For Every servlet we have these 2 <servlet> and <servlet-mapping> tags.
+
+<servlet>
+		<servlet-name> abc </servlet-name>
+		<servlet-class> com.servlet.AddServlet </servlet-class>
+</servlet>
+
+<servlet-mapping>
+		      <servlet-name> abc </servlet-name>
+		      <url-pattern> /add </url-pattern>
+</servlet-mapping>
+
+- <servlet-name> tag inside both tags are used to link uniquely both tags servlet and servlet-mapping.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+Get and Post:
+=============
+
+- We right click on the project and create an index.html file, which is basically like a client page.
+
+- Inside that we have <form> tag inside <body> tag where the form for adding 2 numbers is designed.
+
+- on <form> tag by default method='get' is set.
+
+- if method is get, user's input data is visible in Url query string.
+
+- It will get hiddent if we change method to post for security purposes.
+
+- Inside AddServlet class, we used service() method from HttpServlet initially.
+
+- We also have 2 more methods doGet() and doPost() for each specific purpose.
+
+- If we are using these both methods, it doesn't mean service() method is gone out of our picture.
+
+- Internally service() is always called and service() method only internally calls either doget() or doPost() based on what is set as 
+  method on <form> tag. 
+
+- If lets say method is set to post and we have defined doGet(), it will throw an error.
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+RequestDispatcher(I):
+=====================
+
+- To forward request from one servlet to another servlet, we have 2 approaches.
+
+  1) RequestDispatcher
+  2) Redirect.
+
+- We get an instance of RequestDispatcher(I) using getRequestDispatcher("url pattern of target servlet") method from req.
+
+- then we forward same both req and res to another servlet using forward(req, res) method from RequestDispatcher instance.
+
+- Since the req and res are forwarded from here, we can attach any data if we want to req and fetch it inside other servlet.
+
+- We do that using 2 methods called as req.setAttribute() and req.getAttribute().
+
+- getAttribute() returns Object type hence we can type caste it.
+
+- In our scenario we are forwarding request from AddServlet to SquareServlet.
+
+- Don't forget to write new set of mapping for SquareServlet in web.xml Deployment Descriptor file.
+
+
+1) RequestDispatcher:
+=====================
+
+example:
+--------
+
+In AddServlet:
+--------------
+
+public class AddServlet extends HttpServlet {
+
+
+ public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+          int i = Integer.parseInt(request.getParameter("num1"));
+		int j = Integer.parseInt(request.getParameter("num2"));
+		int k = i + j;
+
+		PrintWriter out = response.getWriter();
+		out.println("The result is: " + k);
+		
+		request.setAttribute("K", k);
+		RequestDispatcher rd = request.getRequestDispatcher("square");	
+		rd.forward(request, response);
+
+  }
+}
+
+
+In SquareServlet:
+-----------------
+
+public class SquareServlet extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+				int k = (int) request.getAttribute("K");
+				k = k * k;
+
+				PrintWriter out = response.getWriter();
+				out.println("The Square is: " + k);
+
+}
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+2) Redirect:
+============
+
+- Here user send diffrent req and res to both servlets.
+
+- First user send req to AddServlet, it responds user and says to redirect to SquareServlet.
+
+- It responds using sendRedirect() ,ethod from res object.
+
+- While responding it attach some data while mentioning url pattern of servlet to be redirected.
+
+- Since the data is transferred in url query string, we can fetch it like we did initially using request.getParameter() method.
+
+- It like saying user hey, u r redirected to square servlet.
+
+- All these comes under session management and there are 3 techniques involved.
+
+  a) URL Rewriting
+  b) Session
+  c) Cookie
+
+
+a) URL-ReWriting:
+=================
+
+In AddServlet:
+--------------
+public class AddServlet extends HttpServlet {
+
+ public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+  response.sendRedirect("square?K=" + k);
+
+  int k = Integer.parseInt(request.getParameter("K"));
+  k = k * k;
+  PrintWriter out = response.getWriter();
+  out.println("The Square using Redirect is: " + k);
+
+  }
+
+}
+
+
+In SquareServlet:
+-----------------
+public class SquareServlet extends HttpServlet { 
+
+ public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+           int k = Integer.parseInt(request.getParameter("K"));
+		 k = k * k;
+		 PrintWriter out = response.getWriter();
+		 out.println("The Square using Redirect is: " + k);
+
+  }
+}
+
+
+
+
+b) Session:
+===========
+
+- Here we simply remove data from url writtend in sendRedirect() method.
+
+- Because what if we want to pass more than one number to another servlet, then previous approach will not work.
+
+- Hence we make use of HttpSession.
+
+- We get hold of it in both servlets.
+
+- It is an Interface like RequestDispatcher, we get instance of it using getSession() method on req object.
+
+- then as we did initially during RD, we setAttribute() in session instance and getAttribute() from session Instance.
+
+
+Example:
+--------
+
+In AddServlet:
+--------------
+public class AddServlet extends HttpServlet {
+
+ public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+  HttpSession session = request.getSession();
+  session.setAttribute("K", k);
+  response.sendRedirect("square");
+
+  }
+
+}
+
+
+In SquareServlet:
+-----------------
+public class SquareServlet extends HttpServlet { 
+
+ public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+  HttpSession session = request.getSession();
+  int k = (int) session.getAttribute("K");
+
+  k = k * k;
+  PrintWriter out = response.getWriter();
+  out.println("The Square using Session is: " + k);
+
+ }
+}
+
+
+
+c) Cookies:
+===========
+
+- The thrid approach is Cookie.
+
+- Whenever user gets response from servlet, he also gets cookie in response.
+
+- We can use that to pass data from Add to Square servlet.
+
+- Cookie is a class, hence we create an Object of it in Add Servlet.
+
+- We pass key as name, and value as value in its constructor.
+
+  eg: Cookie cookie = new Cookie(Name, Value);
+
+- Then we attach this cookie to res object.
+
+- User will get this cookie and pass it to Square servlet as it is internally.
+
+- We get cookie in Square servlet using getCookies() method.
+
+- User passes all the cookies to Square servlet which he has got during intial response.
+
+- Its an array of cookies so we use enchanced for loop and get our desried cookie using its name/key using cookie.getName().
+
+- Then we fetch appropriate value using cookie.getValue().
+ 
+- We parse or type caste it whereever required.
+
+
+Example:
+--------
+
+In AddServlet:
+--------------
+public class AddServlet extends HttpServlet {
+
+ public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+  Cookie cookie = new Cookie("K", k + "");
+  response.addCookie(cookie);
+  response.sendRedirect("square");
+ 
+ }
+}
+
+In SquareServlet:
+-----------------
+public class SquareServlet extends HttpServlet { 
+
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+  int k = 0;
+  Cookie cookiesArr[] = request.getCookies();
+	
+   for(Cookie c: cookiesArr) {
+        if(c.getName().equals("K")) {
+        k = Integer.parseInt(c.getValue());			}
+   }
+		
+   k = k * k;
+   PrintWriter out = response.getWriter();
+   out.println("The Square using Cookie is: " + k);
+
+  }
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+ServletConfig and ServletContext:
+=================================
+
+- Both are used to set intial values for Servlet or for applicaton.
+
+- ServletContext is common aand shared among all available servlets.
+
+- Where ServletConfig is something private for each particular servlet.
+
+- We specify ServletContext value inside web.xml file like this
+
+- And access like this using getInitParameter() method.
+
+
+ServletContext:
+===============
+
+<context-param>
+		<param-name>Name</param-name>
+		<param-value> Ujjwal </param-value>
+</context-param> 
+
+
+Inside Servlet class:
+---------------------
+
+public class ServletContextAndConfig extends HttpServlet {
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		
+          PrintWriter out = response.getWriter();
+		out.println("Hi ");
+
+		ServletContext context = request.getServletContext();
+		String name = context.getInitParameter("Name");
+		out.println(name);ServletContext context = getServletContext();
+
+  }
+}
+
+
+
+
+ServletConfig:
+==============
+
+   <servlet>
+		<servlet-name>xyz</servlet-name>
+		<servlet-class>com.servlet.ServletContextAndConfig</servlet-class>
+
+		<init-param>
+			<param-name> Mobile </param-name>
+			<param-value> Samsung Galaxy </param-value>
+	     </init-param>
+  </servlet>
+	
+	<servlet-mapping>
+		<servlet-name> xyz </servlet-name>
+		<url-pattern> /home </url-pattern>
+	</servlet-mapping>
+
+
+Inside Servlet class:
+---------------------
+
+public class ServletContextAndConfig extends HttpServlet {
+	
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		
+          PrintWriter out = response.getWriter();
+		out.println("Hi ");
+
+		ServletConfig config = getServletConfig();
+		String name1 = context.getInitParameter("Name");
+		out.println(name1);
+
+  }
+}
+
+
+
+Servlet Annotation Configuration:
+=================================
+
+- Remove web.xml code.
+
+- Use @WebServlet("/url_pattern_here) on class.
+
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+Why JSP?
+========
+
+- In servlet in response, if we want to let's say set some background color, we need to write html tags inside a Java class.
+
+- As the design or tags increases, the complexity increases, hence we make use of JSP.
+
+- JSP stands for Java Server Pages.
+
+- Inside JSp file, we can write Java code in a HTML file.
+
+- Objects like request, response and out are internally injected inside JSP file hence we can use it directly.
+
+- These objects are called as IMPLICIT OBJECTS in jsp.
+
+- We use delimeter <% %> inside which we write Java code.
+
+- Finally to call our Jsp page instead of servlet, we change form action in Client's index.html page from add to add.jsp
+
+
+example:
+---------
+
+index.html:
+-----------
+
+           <form action="add.jsp" method="get">
+			    Enter First number: <input type="text" name="num1"> <br>
+			    Enter Second number: <input type="text" name="num2"> <br>
+			    <input type="submit">
+		 </form>  
+
+
+
+
+add.jsp:
+--------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Add jsp page</title>
+	</head>
+	<body bgcolor="pink">
+		<%
+			int i = Integer.parseInt(request.getParameter("num1"));
+			int j = Integer.parseInt(request.getParameter("num2"));
+			int k = i + j;
+		     out.println("The result is: " + k);
+		%>
+	</body>
+</html>
+
+
+
+Why not use JSP instead of servlets?
+====================================
+
+- It may seem easy to work with JSP in comparison with Servlet.
+
+- We may think to use only jsp and totally avoid servlets. 
+
+- But internally our jsp file gets converted into servlet class only, and thats where Impicit objects like req,res,out are injected.
+
+- This happens because our Tomcat server cannot run jsp files directly.
+
+- Hence knowledge and inclusion of servlets is always there.
+
+- Use jsp when design is primary requirement, use servlets where processsing is primary requirement.
+
+- We have 4 tags for different scenarios.
+
+   1) Directive - for imprting packages -> <%@ ----- %>
+     - It is further divided into 4 more types
+
+   2) Declarations - for declaring some global variables outside service() method -> <%! ---- %>
+   3) Scriptlet - for code inside service() method -> <% --- %>
+   4) Expression - for writing using out -> <%= --- %>
+
+
+
+JSP To Servlets conversion:
+===========================
+
+1) Directive (Used to import extra reuired packages)
+-----------------------------------------------------
+ <%@ page import="java.util.scanner, java.lang.Throwable" %>
+
+
+
+
+2) Declaration 
+---------------
+ -> Whatever written Goes inside class outside service() method, 
+ -> used to declare extra methods and instance variables
+
+  <%!
+     int a = 10;
+     public void show() {}
+  %>
+
+
+
+3) Scriplet (Everything goes isnide service() method)
+------------------------------------------------------
+        <%
+		int i = Integer.parseInt(request.getParameter("num1"));
+		int j = Integer.parseInt(request.getParameter("num2"));
+		int k = i + j;
+		out.println("The result is: " + k);
+	   %>
+
+
+
+4) Expression (Used to print something directly using PrintWriter)
+-------------------------------------------------------------------
+  <%= k %>
+		
+
+
+JSP Directives:
+===============
+
+- @page - to mention some information about page that is for whole page like contentType, import packages, isErrorfile etc.
+
+      eg: <%@ page language="java" import="java.util.*, java.sql.*" info="contatct page" contentType="text/html" isThreadSafe="false"
+                extends="Com.user.telusko" session="true" errorPage="error.jsp" isErrorPage="false" %>
+
+
+- @include - include some other jsp file into current JSP file, like common header.jsp and footer.jsp
+
+      eg: <%@ include file="header.jsp" %>
+
+
+- @taglib - include some external tags other than html tags.
+
+      eg: <%@ taglib uri="url of that external tag library like say spring" prefix="fx" %>
+
+        let's say we want to use <naveen> tag, we will prefix it with fx as -> <fx:naveen>
+
+
+
+Implicit Objects and PageContext in Jsp:
+========================================
+
+- We have all servlets objects which are internally provided by Tomcat server in jsp file available already.
+
+  eg: request, response, out, pageContext, application(ServletContext), config(ServletConfig), session(HttpSession)
+
+- Earlier we have seen ServletContext and ServletConfig.
+
+- One holds data for all servlets and other one for each servlet separately.
+
+- We have one more like this called as PageContext, that holds data in a particular Jsp page scope.
+
+- But we can also change the scope to Session level or others.
+
+ eg: pageContext.setAttribute("name", "Ujjwal", PageContext.SESSION_SCOPE);
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+
+Exception Handling in JSP:
+==========================
+
+- Exception occuring in our jsp page abnormally stops our server.
+
+- We can solve that by using try catch in jsp code.
+
+- However recommended approach is to create a separate error.jsp page.
+
+- To navigate exception from our current jsp page to error.jsp page, we set @page errorPage="error.jsp" at the top.
+
+- In error.jsp page we use expression tag to show exception message using already available exception object.
+
+- But that exception object is kind of disable by default, to enable it we set @page isError="true" at the top.
+
+  eg: <%= exception.getMessage() %>
+
+
+example:
+--------
+
+Exception.jsp
+-------------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+pageEncoding="ISO-8859-1" errorPage="error.jsp" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body> 
+		<% 
+		   int i = 9/0; 
+	     %>
+</body>
+</html>
+
+
+
+Error.jsp:
+----------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1" isErrorPage="true"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body bgcolor="red">
+  	The Error is: <%= exception.getMessage() %>
+</body>
+</html>
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+
+JDBC usings JSP:
+================
+
+- Create a Jdbc.jsp page.
+
+- import sql package at top in declarative tag.
+
+- Add postgres/sql jar files in webinf-lib folder.
+
+- Write JDBC steps inside scriptlet tag.
+
+- Fetch data from database and print it using expression tag.
+
+
+
+Example:
+--------
+
+<!-- Directive -->
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+<!-- Imported java.sql package for sql related exceptions -->
+<%@ page import="java.sql.*" %> 
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title> JDBC TITLE PAGE </title>
+	</head>
+
+	<body bgcolor="pink">
+	
+			<!-- Declaration -->
+	        <%! 
+	        	int empId;
+	        	String empName;
+	        	int empSalary;
+	        %>
+	        
+	        <!-- Scriptlet -->
+			<%
+				String url = "jdbc:postgresql://localhost:5432/hibernatedb";
+				String username = "postgres";
+				String password = "ujjwal";
+				String query = "select * from employee where empid=103";
+				
+				Class.forName("org.postgresql.Driver");
+				Connection conn = DriverManager.getConnection(url, username, password);
+				
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery(query);
+				
+				while(rs.next()) {
+					empId = rs.getInt(1);
+					empName = rs.getString(2);
+					empSalary = rs.getInt(3);
+				}
+			%>
+			
+			<!-- Expression -->
+			EMPLOYEE ID: <%= empId  %> <br>
+			EMPLOYEE NAME: <%= empName %> <br>
+			EMPLOYEE SALARY: <%= empSalary %> <br>
+	</body>
+</html>
+
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+
+MVC using Servlet and JSP:
+==========================
+
+- We should never write our business logic inside JSP.
+
+- In MVC we have Modal, View and Controller.
+
+- Controller is written using servlet, Modal is a simple entity/pojo, and View is made using Jsp for static view purpose
+
+- Client/user sends his request and Controller recieves it.
+
+- Controller forwards request to View by sending Model Object along.
+
+- View recieves Model object from controller and populates view using that data and finally send back the desired resposne to client.
+
+
+
+N-Tier architecture:
+--------------------
+
+- It is similar to Layered architecture.
+
+- Along with Controller, We have Service layer, and Respository/DAO layer which connects and fetch data from database.
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------
+
+JSTL (Jsp Standard Tag Library):
+================================
+
+- The JSP Standard Tag Library (JSTL) represents a set of tags to simplify the JSP development.
+
+
+Advantage of JSTL:
+-----------------
+-> Fast Development JSTL provides many tags that simplify the JSP.
+-> Code Reusability We can use the JSTL tags on various pages.
+-> No need to use scriptlet tag It avoids the use of scriptlet tag.
+
+
+
+Expression Language (EL):
+-------------------------
+
+- Calling a JSP page from Servlet and fetching and printing data in JSP using Expression Language.
+
+
+JstlServlet.java:
+-----------------
+package com.servlet;
+import java.io.IOException;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/jstl-servlet")
+public class JstlServlet extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		
+		String name = "Ujjwal JSTL Demo";
+		
+		request.setAttribute("label", name);
+		RequestDispatcher rd = request.getRequestDispatcher("jstl.jsp");
+		rd.forward(request, response);
+		
+	}
+}
+
+
+Jstl.jsp:
+---------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Insert title here</title>
+	</head>
+
+	<body>
+		<!-- Expression Language -->
+		${label}
+	</body>
+</html>
+
+
+
+JSTL core tags in JSP file:
+===========================
+
+- make necessary import at top using @taglib directive
+
+  eg:  <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+- We can send a student object or a list of student objects from Servlet to jsp and fetch that in JSp using JSTL custom tags.
+
+
+example:
+--------
+
+JstlServlet.java:
+-----------------
+package com.servlet;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/jstl-servlet")
+public class JstlServlet extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+		
+		String name = "Ujjwal JSTL Demo";
+		Student student = new Student(1, "Steve");
+		
+		List<Student> studentsList = Arrays.asList(new Student(1, "Steve"), new Student(2, "Clarke"), new Student(3, "Diana"));
+		
+		request.setAttribute("label", name);
+		request.setAttribute("student", student);
+		request.setAttribute("students", studentsList);
+		
+		RequestDispatcher rd = request.getRequestDispatcher("JSTL.jsp");
+		rd.forward(request, response);
+		
+	}
+}
+
+
+JSTL.jsp:
+---------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Insert title here</title>
+	</head>
+
+	<body>
+		<!-- Expression Language -->
+		 ${label} <br>
+		
+		 ${student.studentName} <br>
+		 
+		 <!-- Using JSTL out tag -->
+		 <c:out value="${student.studentName}"></c:out>  <br>
+		 
+		<!--  Using JSTL forEach tag to iterlate over list of students -->
+		<c:forEach items="${students}" var="s">
+			${s.studentId} 
+			${s.studentName} <br>
+		</c:forEach>
+	</body>
+</html>
+
+
+
+Connecting jsp page with jdbc using JSTL custom tags:
+=====================================================
+
+- Here we have used custom tags from JSTL core and JSTL sql.
+
+- Using that we have easily connected our jsp to db in very few steps.
+
+- We have fetched employees data from Database and printed it in response page.
+
+
+eg:
+---
+
+JSTLSQL.jsp:
+------------
+
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%> --> for printing
+<%@ taglib prefix="sql" uri="http://java.sun.com/jsp/jstl/sql"%> --> for sql queries
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+ <body>
+   <sql:setDataSource var="db" driver="org.postgresql.Driver" url="jdbc:postgresql://localhost:5432/hibernatedb"
+                      user="postgres" password="ujjwal"/>
+                      
+   <sql:query var="resultset" dataSource="${db}"> select * from employee </sql:query>
+   
+   <c:forEach items="${resultset.rows}" var="employee">
+   		<br> <c:out value="${employee.empid}" /> : <c:out value="${employee.empname}" /> : <c:out value="${employee.empsalary}" />
+   </c:forEach>
+
+ </body>
+</html>
+
+
+JSTL functions:
+===============
+
+JSTLFUnctions.jsp
+-----------------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+    
+    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %> --> imported for using JSTL functions
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+  <!-- Here we will declare a string using core tag, and try to apply diff functions from function library in JSTL -->
+
+  <c:set var="str" value="My name is Ujjwal Singh"/>
+  
+  Length: ${fn:length(str)}      <br>
+  
+  Split:  <c:forEach items="${fn:split(str, ' ')}" var="s">
+               <c:out value="${s}" /> <br>
+          </c:forEach>
+          
+  Contains: ${fn:contains(str, "Ujjwal")}  <br>
+  
+  Ends with: ${fn:endsWith(str, "Singh")}  <br>
+  
+  <c:if test="${fn:endsWith(str, 'Singh')}">
+  		Yes It ends with Singh
+  </c:if>
+ 
+
+</body>
+</html>
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Servlet Filter:
+================
+
+- We can chain any number of filters in between user and server interactions.
+
+- Filters are used to intercept user's request and let is pass to server only if certain condition is satiesfied.
+
+- If the condition is not satiesfied, filers have also the capability just like a servlet has, to send a response back to user and inform him 
+  about what has went wrong.
+
+- refer filer diagram in note for more info.
+
+- Filter is just a normal Java class like a Servlet which has 2 characteristics.
+
+   * It implements Filter(I)
+   * It is annotated with @WebFilter("url-pattern") 
+
+- We can right click on a package -> create filter and specify url pattern that, while calling which servlet this filer should intercept the 
+  request first.
+
+- Let's say we have a AddServlet and its url pattern is /AddServlet, we specify the same pattern to a filter and that filter will be called 
+  first and then it will pass request to next filter is there is any orelse pass request to servlet.
+
+- Filer class has 3 methods, init(), destroy() and doFilter()
+
+- doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {} has these parameters injected by Tomcat.
+
+- We can typecat ServletRequest to HttpServletRequest to catch user inputs from parameters like we did earlier in Servlets.
+
+- It has req object to intercept user's request, It has response object to response back to user if specified condition is not satiesfied.
+
+- chain is used to chain this filter to next filer if available, or to a servlet if no more filers available by forwarding req and rep.
+
+- It does that by calling doFiler(req, res) method.
+
+
+example:
+--------
+
+- We have created AddAlien.jsp page to get alien data fom user.
+
+- We have created a FilterDemoServlet that accepts request and send back html page by Greeting enetred aliedId and alienName.
+
+- We have created 2 filters in between to check Id and Name.
+
+- IdFilter -> checks id > 1, NameFilter -> checks name.length > 5
+
+- Before user's request reaches to Servlet, it passes through both the filters.
+
+- Flow -> AddAlien ==> IdFilter ==> NameFilter ==> FilterDemoServlet
+
+
+AddAlien.jsp:
+-------------
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="ISO-8859-1">
+		<title>Insert title here</title>
+	</head>
+	
+	<body bgcolor="cyan">
+		<!--  <form action="add" method="get"> -->
+		<form action="addAlien" method="get">
+			Aliend Id : <input type="text" name="aid" placeholder="Enter Alien Id"> <br> <br>
+			Alien Name : <input type="text" name="aname" placeholder="Enter Alien Name">  <br> <br>
+			<input type="submit">
+		</form>
+	</body>
+</html>
+
+
+
+IdFilter:
+---------
+package com.servlet;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpFilter;
+import javax.servlet.http.HttpServletRequest;
+
+@WebFilter("/addAlien")
+public class IdFilter extends HttpFilter implements Filter {
+
+	@Override
+	public void init(FilterConfig fConfig) throws ServletException {
+	}
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+		PrintWriter out = response.getWriter();
+		HttpServletRequest req = (HttpServletRequest) request; // tycated ServletRequest to HttpServletRequest
+		int aliendId = Integer.parseInt(req.getParameter("aid"));
+
+		if (aliendId > 1) 
+			// pass the request along the filter chain
+			chain.doFilter(req, response);
+		 else 
+			out.print("Aliend Id shoud be greater than one");
+	}
+
+	@Override
+	public void destroy() {
+	}
+
+}
+
+
+
+NameFilter:
+-----------
+package com.servlet;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpFilter;
+import javax.servlet.http.HttpServletRequest;
+
+@WebFilter("/addAlien")
+public class NameFilter extends HttpFilter implements Filter {
+
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		
+		PrintWriter out = response.getWriter();
+		HttpServletRequest req = (HttpServletRequest) request; // tycated ServletRequest to HttpServletRequest
+		String alienName = req.getParameter("aname");
+
+		if (alienName.length() > 5) 
+			chain.doFilter(req, response);
+		 else 
+			out.print("Alien Name shoud have more than five characters");
+	}
+}
+
+
+
+FilterDemoServlet:
+------------------
+package com.servlet;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/addAlien")
+public class FilterDemoServlet extends HttpServlet {
+	
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+		
+		int aliendId = Integer.parseInt(req.getParameter("aid"));
+		String alienName = req.getParameter("aname");
+		
+		PrintWriter out = res.getWriter();
+		out.print("Welcome " + aliendId + " with Name " + alienName);
+	}
+}
+
+
+Login page using Jsp, servlet, Jdbc:
+------------------------------------
+
+Servlet, JSp, MVC, JDBC, Maven:
+-------------------------------
+

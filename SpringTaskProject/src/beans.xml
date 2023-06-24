@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd">
+	
+	<context:property-placeholder location="classpath:Student-Details.properties"/>
+
+    <!-- Dependency injection through setters  -->
+
+	<!-- Address Object Configuration -->
+	<bean class="com.Employee.Address" name="AddressBean">
+		<property name="houseNo" value="10" />
+		<property name="city" value="Chennai" />
+		<property name="pincode" value="600060" />
+	</bean>
+
+	<!-- Employee Object Configuration -->
+	<bean class="com.Employee.Employee" name="EmployeeBean">
+
+		<property name="empId" value="9000" />
+		<property name="empName" value="Ujjwal Singh" />
+		<property name="empSalary" value="15695" />
+		<property name="address" ref="AddressBean" />
+		<property name="bookList">
+			<list>
+				<value> Rich Dad Poor Dad </value>
+				<value> How to Win Friends and Influence People </value>
+				<value> The 4 Hour WorkWeek </value>
+				<value> The Art of War </value>
+				<value> The Lean Startup </value>
+				<value> Rich Dad Poor Dad </value>
+			</list>
+		</property>
+		<property name="mobileNumbers">
+			<set>
+				<value> 12345 </value>
+				<value> 54321 </value>
+				<value> 78954 </value>
+				<value> 78412 </value>
+				<value> 412987 </value>
+				<value> 12345 </value>
+			</set>
+		</property>
+		<property name="favouriteSportsPersons">
+			<map>
+				<entry key="Cricket" value="Sachin Tendulkar" />
+				<entry key="Football" value="Christiano Ronaldo" />
+				<entry key="Chess" value="Vishwanathan Anand" />
+				<entry key="Golf" value="Jeev Milkha Singh " />
+				<entry key="Hockey" value="Dhyan Chand" />
+			</map>
+		</property>
+      
+       
+        <!-- Dependency injection through parameterized constructor  -->
+    
+    <!-- 
+		<constructor-arg name="empId" type="int" value="8989" />
+		<constructor-arg name="empName" type="java.lang.String" value="Ajay Kumar" />
+		<constructor-arg name="empSal" type="double" value="8500" />
+		<constructor-arg name="address"  type="Address" ref="AddressBean" />
+		<constructor-arg name="bookList" type="java.util.List">
+			<list>
+				<value> Rich Dad Poor Dad </value>
+				<value> How to Win Friends and Influence People  </value>
+				<value> The 4 Hour WorkWeek </value>
+				<value> The Art of War </value>
+				<value> The Lean Startup </value>
+				<value> Rich Dad Poor Dad </value>
+			</list>
+		</constructor-arg>
+		
+		<constructor-arg name="mobileNumbers" type="java.util.Set">
+			<set>
+				<value> 12345 </value>
+				<value> 54321  </value>
+				<value> 78954 </value>
+				<value> 78412  </value>
+				<value> 412987 </value>
+				<value> 12345 </value>
+			</set>
+		</constructor-arg>
+		
+		<constructor-arg name="favouriteSportsPersons" type="java.util.Map">
+			<map>
+				<entry key="Cricket" value="Sachin Tendulkar" />
+				<entry key="Football" value="Christiano Ronaldo" />
+				<entry key="Chess" value="Vishwanathan Anand" />
+				<entry key="Golf" value="Jeev Milkha Singh " />
+				<entry key="Hockey" value="Dhyan Chand" />
+			</map>
+		</constructor-arg> 
+		-->
+	</bean>
+	
+	<bean name="student" class="com.Student.Student">
+		 <property name="studentId" value="${Student.studentId}"></property>
+		 <property name="studentName" value="${Student.studentName}"></property>
+		 <property name="studentFees" value="${Student.studentFees}"></property>
+	</bean>
+
+</beans>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+	id="WebApp_ID" version="4.0">
+
+
+	 <servlet>
+		<servlet-name>AddServlet</servlet-name>
+		<servlet-class>com.servlets.AddServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddServlet</servlet-name>
+		<url-pattern> /add </url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>SquareServlet</servlet-name>
+		<servlet-class>com.servlets.SquareServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SquareServlet</servlet-name>
+		<url-pattern> /square </url-pattern>
+	</servlet-mapping>
+	
+
+	<!-- ServletConfig(available separately for each servlet class) & ServletContext(common to all servlets classes) -->
+	<servlet>
+		<servlet-name>ServletContextAndConfig</servlet-name>
+		<servlet-class>com.servlets.ServletContextAndConfig</servlet-class>
+		<init-param>
+			<param-name> Mobile </param-name>
+			<param-value> Samsung Galaxy </param-value>
+	   </init-param>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>ServletContextAndConfig</servlet-name>
+		<url-pattern> /servletcontextandconfig </url-pattern>
+	</servlet-mapping>
+
+	<context-param>
+		<param-name> Name </param-name>
+		<param-value> Ujjwal </param-value>
+	</context-param> 
+
+</web-app>

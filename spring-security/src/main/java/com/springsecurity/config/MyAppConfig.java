@@ -1,0 +1,68 @@
+package com.springsecurity.config;
+
+import javax.sql.DataSource;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+
+@Configuration
+@ComponentScan(basePackages = { "com.springsecurity" })
+public class MyAppConfig {
+	
+	@Bean
+	public InternalResourceViewResolver getViewResolver() {
+		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+		viewResolver.setPrefix("/WEB-INF/view/");
+		viewResolver.setSuffix(".jsp");
+		return viewResolver;
+	}
+
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		 return NoOpPasswordEncoder.getInstance();
+//		return new BCryptPasswordEncoder();
+	}
+
+	// DATASOURCE
+	@Bean
+	public DataSource getDataSource() {
+		DriverManagerDataSource dataSource = new DriverManagerDataSource();
+//		dataSource.setUrl("jdbc:mysql://localhost:3306/springsecurity");
+		dataSource.setUrl("jdbc:mysql://localhost:3306/springsecuritydb");
+		dataSource.setUsername("root");
+		dataSource.setPassword("ujjwal");
+		dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+		return dataSource;
+	}
+
+	// JDBC TEMPLATE
+	@Bean
+	public JdbcTemplate getJdbcTemplate() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(getDataSource());
+		return jdbcTemplate;
+	}
+	
+	// JdbcUserDetailsManagaer
+	@Bean
+	public JdbcUserDetailsManager getJdbcUserDetailsManager() {
+		JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(getDataSource());
+		
+		// later added lines of code
+		// for using custom schema and queries (keep in mind that though we have one table 'customer' now, still we 
+		// should change queries below like working with 2 tables (user and authorities)
+		jdbcUserDetailsManager.setUsersByUsernameQuery("select username, password, enabled from customers where username = ?");
+		jdbcUserDetailsManager.setAuthoritiesByUsernameQuery("select username, roles from customers where username = ?");
+		jdbcUserDetailsManager.setChangePasswordSql("update customers set password = ? where username = ?");
+		jdbcUserDetailsManager.setDeleteUserSql("delete from customers where username = ?");
+		jdbcUserDetailsManager.setDeleteUserAuthoritiesSql("delete from customers where username = ?");
+		
+		return jdbcUserDetailsManager;
+	}
+}
